@@ -1,4 +1,5 @@
 package com.yash.twinsync
+import android.content.Intent
 import android.widget.Button
 import android.widget.Toast
 import android.widget.EditText
@@ -44,7 +45,8 @@ class LoginActivity : AppCompatActivity() {
 
         // ✅ Register button click (navigate to RegisterActivity later)
         registerButton.setOnClickListener {
-            Toast.makeText(this, "Register screen coming soon!", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, RegisterActivity::class.java)
+            startActivity(intent)
         }
     }
 

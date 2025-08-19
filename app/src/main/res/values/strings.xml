@@ -7,5 +7,5 @@
     <string name="create_account">Create account</string>
     <string name="full_name">Full name</string>
     <string name="already_have_account">Already have an account?</string>
-    <string name="confirm_password">\n\n\n\n\n\n\n\n\n\nConfirm Password</string>
+    <string name="confirm_password">Confirm Password</string>
 </resources>

@@ -10,6 +10,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
+import android.content.Intent
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -28,6 +29,13 @@ class RegisterActivity : AppCompatActivity() {
         emailInput = findViewById(R.id.emailInput)
         passwordInput = findViewById(R.id.passwordInput)
         registerButton = findViewById(R.id.registerButton)
+        val loginRedirectButton = findViewById<Button>(R.id.loginRedirectButton)
+
+        loginRedirectButton.setOnClickListener {
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish() // optional
+        }
 
         registerButton.setOnClickListener {
             val name = nameInput.text.toString().trim()

@@ -28,13 +28,11 @@ class HomePageActivity : AppCompatActivity() {
         val acceptButton = findViewById<Button>(R.id.acceptButton)
         val unlinkButton = findViewById<Button>(R.id.unlinkButton)
 
-        // Example: when home screen loads, try fetching partner data
+        // Partner data UI section
+        val partnerDataLayout = findViewById<LinearLayout>(R.id.partnerDataLayout)
+
+        // Always fetch partner data on load
         fetchPartnerData()
-
-//        val token = TokenManager.getAccessToken(this)
-//        Toast.makeText(this, "Token: $token", Toast.LENGTH_LONG).show()
-//        println("DEBUG TOKEN: $token")
-
 
         // Create invite code
         createInviteButton.setOnClickListener {
@@ -55,7 +53,7 @@ class HomePageActivity : AppCompatActivity() {
                         if (response.isSuccessful) {
                             val responseBody = response.body?.string() ?: ""
                             val jsonResp = JSONObject(responseBody)
-                            val code=jsonResp.optString("invite_code")
+                            val code = jsonResp.optString("invite_code")
                             inviteCodeText.text = code
                         } else {
                             Toast.makeText(this@HomePageActivity, "Failed: ${response.message}", Toast.LENGTH_SHORT).show()
@@ -106,7 +104,10 @@ class HomePageActivity : AppCompatActivity() {
                     runOnUiThread {
                         if (response.isSuccessful) {
                             Toast.makeText(this@HomePageActivity, "Paired successfully 🎉", Toast.LENGTH_SHORT).show()
-                            unlinkButton.visibility = Button.VISIBLE
+                            unlinkButton.visibility = View.VISIBLE
+                            // Hide invite UI since now paired
+                            toggleInviteUI(false)
+                            fetchPartnerData()
                         } else {
                             Toast.makeText(this@HomePageActivity, "Failed: ${response.message}", Toast.LENGTH_SHORT).show()
                         }
@@ -133,7 +134,10 @@ class HomePageActivity : AppCompatActivity() {
                     runOnUiThread {
                         if (response.isSuccessful) {
                             Toast.makeText(this@HomePageActivity, "Unlinked successfully ✅", Toast.LENGTH_SHORT).show()
-                            unlinkButton.visibility = Button.GONE
+                            unlinkButton.visibility = View.GONE
+                            partnerDataLayout.visibility = View.GONE
+                            // Show invite UI again
+                            toggleInviteUI(true)
                         } else {
                             Toast.makeText(this@HomePageActivity, "Failed: ${response.message}", Toast.LENGTH_SHORT).show()
                         }
@@ -142,8 +146,17 @@ class HomePageActivity : AppCompatActivity() {
             })
         }
     }
+
+    // Helper: toggle invite UI
+    private fun toggleInviteUI(show: Boolean) {
+        findViewById<Button>(R.id.createInviteButton).visibility = if (show) View.VISIBLE else View.GONE
+        findViewById<Button>(R.id.copyButton).visibility = if (show) View.VISIBLE else View.GONE
+        findViewById<TextView>(R.id.inviteCodeText).visibility = if (show) View.VISIBLE else View.GONE
+        findViewById<EditText>(R.id.acceptCodeInput).visibility = if (show) View.VISIBLE else View.GONE
+        findViewById<Button>(R.id.acceptButton).visibility = if (show) View.VISIBLE else View.GONE
+    }
+
     private fun fetchPartnerData() {
-        val client = OkHttpClient()
         val request = Request.Builder()
             .url("https://twinsync.vercel.app/api/userdata/partner-data/")
             .addHeader("Authorization", "Bearer ${TokenManager.getAccessToken(this)}")
@@ -158,17 +171,21 @@ class HomePageActivity : AppCompatActivity() {
 
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string() ?: ""
-                if (response.isSuccessful && responseBody != "") {
-                    val json = JSONObject(responseBody)
-                    val battery = json.optString("battery", "-")
-                    val steps = json.optString("steps", "-")
-                    val gpsLat = json.optString("gps_lat", "-")
-                    val gpsLon = json.optString("gps_lon", "-")
-                    val mood = json.optString("mood", "-")
-                    val updatedAt = json.optString("updated_at", "-")
+                runOnUiThread {
+                    if (response.isSuccessful && responseBody.isNotEmpty()) {
+                        val json = JSONObject(responseBody)
+                        val battery = json.optString("battery", "-")
+                        val steps = json.optString("steps", "-")
+                        val gpsLat = json.optString("gps_lat", "-")
+                        val gpsLon = json.optString("gps_lon", "-")
+                        val mood = json.optString("mood", "-")
+                        val updatedAt = json.optString("updated_at", "-")
 
-                    runOnUiThread {
                         findViewById<LinearLayout>(R.id.partnerDataLayout).visibility = View.VISIBLE
+                        findViewById<Button>(R.id.unlinkButton).visibility = View.VISIBLE
+
+                        // Hide invite UI since paired
+                        toggleInviteUI(false)
 
                         findViewById<TextView>(R.id.partnerBattery).text =
                             getString(R.string.partner_battery, battery)
@@ -184,10 +201,9 @@ class HomePageActivity : AppCompatActivity() {
 
                         findViewById<TextView>(R.id.partnerUpdatedAt).text =
                             getString(R.string.partner_updated_at, updatedAt)
-                    }
-                } else {
-                    runOnUiThread {
-                        Toast.makeText(this@HomePageActivity, "Error fetching partner data", Toast.LENGTH_SHORT).show()
+                    } else {
+                        // Not paired yet → show invite UI
+                        toggleInviteUI(true)
                     }
                 }
             }

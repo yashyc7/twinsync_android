@@ -12,6 +12,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
 import android.view.View
+import android.content.Intent
 
 class HomePageActivity : AppCompatActivity() {
 
@@ -27,6 +28,8 @@ class HomePageActivity : AppCompatActivity() {
         val acceptCodeInput = findViewById<EditText>(R.id.acceptCodeInput)
         val acceptButton = findViewById<Button>(R.id.acceptButton)
         val unlinkButton = findViewById<Button>(R.id.unlinkButton)
+        val logoutButton = findViewById<Button>(R.id.logoutButton)
+
 
         // Partner data UI section
         val partnerDataLayout = findViewById<LinearLayout>(R.id.partnerDataLayout)
@@ -56,7 +59,7 @@ class HomePageActivity : AppCompatActivity() {
                             val code = jsonResp.optString("invite_code")
                             inviteCodeText.text = code
                         } else {
-                            Toast.makeText(this@HomePageActivity, "Failed: ${response.message}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@HomePageActivity, "Failed: ${response.message}", Toast.LENGTH_LONG).show()
                         }
                     }
                 }
@@ -70,7 +73,7 @@ class HomePageActivity : AppCompatActivity() {
                 val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 val clip = ClipData.newPlainText("Invite Code", code)
                 clipboard.setPrimaryClip(clip)
-                Toast.makeText(this, "Copied!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Copied!", Toast.LENGTH_LONG).show()
             }
         }
 
@@ -97,7 +100,7 @@ class HomePageActivity : AppCompatActivity() {
 
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    runOnUiThread { Toast.makeText(this@HomePageActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show() }
+                    runOnUiThread { Toast.makeText(this@HomePageActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show() }
                 }
 
                 override fun onResponse(call: Call, response: Response) {
@@ -109,7 +112,7 @@ class HomePageActivity : AppCompatActivity() {
                             toggleInviteUI(false)
                             fetchPartnerData()
                         } else {
-                            Toast.makeText(this@HomePageActivity, "Failed: ${response.message}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@HomePageActivity, "Failed: ${response.message}", Toast.LENGTH_LONG).show()
                         }
                     }
                 }
@@ -127,7 +130,7 @@ class HomePageActivity : AppCompatActivity() {
 
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    runOnUiThread { Toast.makeText(this@HomePageActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show() }
+                    runOnUiThread { Toast.makeText(this@HomePageActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show() }
                 }
 
                 override fun onResponse(call: Call, response: Response) {
@@ -139,11 +142,16 @@ class HomePageActivity : AppCompatActivity() {
                             // Show invite UI again
                             toggleInviteUI(true)
                         } else {
-                            Toast.makeText(this@HomePageActivity, "Failed: ${response.message}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@HomePageActivity, "Failed: ${response.message}", Toast.LENGTH_LONG).show()
                         }
                     }
                 }
             })
+        }
+
+        // 🔹 Logout
+        logoutButton.setOnClickListener {
+            logoutUser()
         }
     }
 
@@ -208,5 +216,64 @@ class HomePageActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    // 🔹 Logout function
+    private fun logoutUser() {
+        val refreshToken = TokenManager.getRefreshToken(this)
+
+//        if (refreshToken != null) {
+//            // send it in your logout API request
+//            Toast.makeText(this, "Refresh token: $refreshToken", Toast.LENGTH_SHORT).show()
+//        } else {
+//            Toast.makeText(this, "No refresh token found", Toast.LENGTH_SHORT).show()
+//        }
+
+        if (refreshToken == null) {
+            // No token → clear and go to login
+            TokenManager.clearTokens(this)
+            navigateToLogin()
+            return
+        }
+
+        val url = "https://twinsync.vercel.app/api/auth/logout/"
+        val json = JSONObject()
+        json.put("refresh",refreshToken)
+
+        val body = json.toString()
+            .toRequestBody("application/json; charset=utf-8".toMediaType())
+
+
+        val request = Request.Builder()
+            .url(url)
+            .post(body)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@HomePageActivity, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                runOnUiThread {
+                    if (response.isSuccessful) {
+                        TokenManager.clearTokens(this@HomePageActivity)
+                        Toast.makeText(this@HomePageActivity, "Logged out successfully!", Toast.LENGTH_SHORT).show()
+                        navigateToLogin()
+                    } else {
+                        Toast.makeText(this@HomePageActivity, "Logout failed: ${response.message}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        })
+    }
+
+    private fun navigateToLogin() {
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 }

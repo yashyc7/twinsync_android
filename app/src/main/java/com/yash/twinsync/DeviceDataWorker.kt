@@ -1,55 +1,65 @@
 package com.yash.twinsync.worker
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.BatteryManager
 import android.util.Log
-import androidx.work.Worker
+import androidx.core.content.ContextCompat
+import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.gms.tasks.Task
 import com.yash.twinsync.TokenManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
-import java.io.IOException
 
-class DeviceDataWorker(private val context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
+class DeviceDataWorker(appContext: Context, params: WorkerParameters)
+    : CoroutineWorker(appContext, params) {
 
     companion object {
         private val client = OkHttpClient()
         private const val TAG = "DeviceDataWorker"
     }
 
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result {
+        // 1) Battery
+        val batteryManager = applicationContext.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
+        val battery = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+        Log.d(TAG, "Battery: $battery")
 
-        // --- 1. Fetch Battery ---
-        val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
-        val batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
-        Log.d(TAG, "Battery Level: $batteryLevel")
+        // 2) Steps (from SharedPreferences set by StepCounterService)
+        val prefs = applicationContext.getSharedPreferences("steps_prefs", Context.MODE_PRIVATE)
+        val steps = prefs.getInt("latest_steps", 0)
+        Log.d(TAG, "Steps (today): $steps")
 
-        // --- 2. Fetch Steps ---
-        // Replace this with your step counting logic, here using placeholder
-        val steps = 300 // Example, replace with real step count
-        Log.d(TAG, "Steps: $steps")
+        // 3) GPS
+        val (lat, lon) = getLastKnownLocationSafe()
+        Log.d(TAG, "GPS: lat=$lat, lon=$lon")
 
-        // --- 3. Fetch GPS ---
-        // Replace with real GPS fetching logic
-        val gpsLat = -10.0 // Example
-        val gpsLon = 35.0  // Example
-        Log.d(TAG, "GPS: Lat=$gpsLat Lon=$gpsLon")
-
-        // --- 4. Prepare JSON ---
+        // 4) Build JSON
         val json = JSONObject().apply {
-            put("battery", batteryLevel)
+            put("battery", battery)
             put("steps", steps)
-            put("gps_lat", gpsLat)
-            put("gps_lon", gpsLon)
+            put("gps_lat", lat)
+            put("gps_lon", lon)
         }
-        Log.d(TAG, "Request JSON: ${json.toString()}")
+        Log.d(TAG, "JSON => $json")
 
-        // --- 5. Get Token ---
-        val token = TokenManager.getAccessToken(context) ?: return Result.retry()
+        // 5) Token
+        val token = TokenManager.getAccessToken(applicationContext) ?: run {
+            Log.e(TAG, "No token found")
+            return Result.retry()
+        }
 
-        // --- 6. Create POST request ---
+        // 6) POST
         val body = json.toString().toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
         val request = Request.Builder()
             .url("https://twinsync.vercel.app/api/userdata/update/")
@@ -58,17 +68,48 @@ class DeviceDataWorker(private val context: Context, workerParams: WorkerParamet
             .header("Authorization", "Bearer $token")
             .build()
 
-        client.newCall(request).enqueue(object: Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                Log.e(TAG, "POST Failed: ${e.message}")
-            }
-            override fun onResponse(call: Call, response: Response) {
-                response.body?.string()?.let { body ->
-                    Log.d(TAG, "Server Response: $body")
+        return withContext(Dispatchers.IO) {
+            try {
+                client.newCall(request).execute().use { resp ->
+                    val txt = resp.body?.string()
+                    Log.d(TAG, "Server response: $txt")
                 }
+                Result.success()
+            } catch (e: Exception) {
+                Log.e(TAG, "POST failed: ${e.message}")
+                Result.retry()
             }
-        })
+        }
+    }
 
-        return Result.success()
+    private fun hasLocationPermission(): Boolean {
+        val fine = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val coarse = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        return fine || coarse
+    }
+
+    @SuppressLint("MissingPermission")
+    private suspend fun getLastKnownLocationSafe(): Pair<Double, Double> {
+        if (!hasLocationPermission()) return 0.0 to 0.0
+
+        val fused = LocationServices.getFusedLocationProviderClient(applicationContext)
+
+        // Try last location quickly
+        try {
+            val last = fused.lastLocation.await()
+            if (last != null) return last.latitude to last.longitude
+        } catch (_: Exception) {}
+
+        // Fallback: request a fresh location (may still return null quickly)
+        return try {
+            val tokenSource = CancellationTokenSource()
+            val task: Task<android.location.Location> =
+                fused.getCurrentLocation(com.google.android.gms.location.Priority.PRIORITY_BALANCED_POWER_ACCURACY, tokenSource.token)
+            val loc = task.await()
+            if (loc != null) loc.latitude to loc.longitude else 0.0 to 0.0
+        } catch (e: Exception) {
+            Log.w(TAG, "getCurrentLocation failed: ${e.message}")
+            0.0 to 0.0
+        }
     }
 }

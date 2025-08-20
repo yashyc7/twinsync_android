@@ -104,6 +104,11 @@ class MoodWidgetProvider : AppWidgetProvider() {
                 workRequest
             )
         }
+
+        fun runDeviceDataWorkerNow(context: Context) {
+            val req = androidx.work.OneTimeWorkRequestBuilder<com.yash.twinsync.worker.DeviceDataWorker>().build()
+            androidx.work.WorkManager.getInstance(context).enqueue(req)
+        }
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
@@ -127,6 +132,12 @@ class MoodWidgetProvider : AppWidgetProvider() {
             // Fetch partner data immediately when widget loads
             updatePartnerData(context, appWidgetManager, componentName)
         }
+
+        // Start step counter service whenever widget updates
+        com.yash.twinsync.services.StepCounterService.start(context)
+
+        // 🔹 Run worker immediately (for debugging)
+//        runDeviceDataWorkerNow(context)
 
         // Start periodic background refresh
         schedulePeriodicRefresh(context)

@@ -13,8 +13,28 @@ import org.json.JSONObject
 import java.io.IOException
 import android.view.View
 import android.content.Intent
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+
 
 class HomePageActivity : AppCompatActivity() {
+
+    // 1. Launcher for requesting multiple permissions
+    private val requestPermissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val locationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+        val activityRecognitionGranted = permissions[Manifest.permission.ACTIVITY_RECOGNITION] ?: false
+
+        if (locationGranted && activityRecognitionGranted) {
+           print("granted")
+        } else {
+            print("not granted")
+        }
+    }
+
 
     private val client = OkHttpClient()
 
@@ -36,6 +56,7 @@ class HomePageActivity : AppCompatActivity() {
 
         // Always fetch partner data on load
         fetchPartnerData()
+        checkAndRequestPermissions()
 
         // Create invite code
         createInviteButton.setOnClickListener {
@@ -276,4 +297,25 @@ class HomePageActivity : AppCompatActivity() {
         startActivity(intent)
         finish()
     }
+
+    private fun checkAndRequestPermissions() {
+        val permissionsToRequest = mutableListOf<String>()
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsToRequest.add(Manifest.permission.ACTIVITY_RECOGNITION)
+        }
+
+        if (permissionsToRequest.isNotEmpty()) {
+            requestPermissionsLauncher.launch(permissionsToRequest.toTypedArray())
+        }
+    }
+
 }

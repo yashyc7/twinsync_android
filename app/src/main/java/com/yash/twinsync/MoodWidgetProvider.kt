@@ -10,6 +10,7 @@ import android.widget.RemoteViews
 import androidx.work.*
 import com.yash.twinsync.R
 import com.yash.twinsync.TokenManager
+import com.yash.twinsync.worker.DeviceDataWorker
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -91,6 +92,18 @@ class MoodWidgetProvider : AppWidgetProvider() {
                 workRequest
             )
         }
+
+        fun scheduleDeviceDataWorker(context: Context) {
+            val workRequest = androidx.work.PeriodicWorkRequestBuilder<DeviceDataWorker>(
+                15, java.util.concurrent.TimeUnit.MINUTES
+            ).build()
+
+            androidx.work.WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                "DeviceDataWorker",
+                androidx.work.ExistingPeriodicWorkPolicy.KEEP,
+                workRequest
+            )
+        }
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
@@ -117,6 +130,8 @@ class MoodWidgetProvider : AppWidgetProvider() {
 
         // Start periodic background refresh
         schedulePeriodicRefresh(context)
+        //send own data to server
+        scheduleDeviceDataWorker(context)
     }
 
     override fun onReceive(context: Context, intent: Intent) {

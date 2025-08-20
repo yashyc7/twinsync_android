@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:background="@android:color/white">
+
+    <!-- My Mood -->
+    <TextView
+        android:id="@+id/my_mood_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="--"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp">
+
+        <Button
+            android:id="@+id/mood_happy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="😄 Happy" />
+
+        <Button
+            android:id="@+id/mood_sad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="😢 Sad"
+            android:layout_marginStart="4dp" />
+
+        <Button
+            android:id="@+id/mood_excited"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🤩 Excited"
+            android:layout_marginStart="4dp" />
+    </LinearLayout>
+
+    <!-- Partner Data -->
+    <TextView
+        android:id="@+id/partner_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Partner Data"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/partner_mood"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mood: --" />
+
+    <TextView
+        android:id="@+id/partner_battery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Battery: --" />
+
+    <TextView
+        android:id="@+id/partner_steps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Steps: --" />
+
+    <TextView
+        android:id="@+id/partner_gps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GPS: --" />
+
+    <!-- Refresh Button -->
+    <Button
+        android:id="@+id/refresh_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Refresh"
+        android:layout_marginTop="8dp" />
+
+</LinearLayout>

@@ -99,6 +99,7 @@ class MoodWidgetProvider : AppWidgetProvider() {
             views.setOnClickPendingIntent(R.id.refresh_button, refreshPendingIntent)
 
             appWidgetManager.updateAppWidget(widgetId, views)
+            updatePartnerData(context, appWidgetManager, componentName) // <-- fetch immediately
         }
 
         // Auto-refresh partner data every 5 minutes

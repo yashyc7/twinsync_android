@@ -14,4 +14,14 @@
     <string name="enter_invite_code">Enter invite code</string>
     <string name="accept_invitation">Accept Invitation</string>
     <string name="unlink_partner">Unlink Partner</string>
+    <string name="last_updated">Last Updated: -</string>
+    <string name="mood">Mood: -</string>
+    <string name="gps">GPS: -</string>
+    <string name="steps">Steps: -</string>
+    <string name="battery">Battery: -</string>
+    <string name="partner_battery">Battery: %1$s</string>
+    <string name="partner_steps">Steps: %1$s</string>
+    <string name="partner_gps">GPS: %1$s, %2$s</string>
+    <string name="partner_mood">Mood: %1$s</string>
+    <string name="partner_updated_at">Last Updated: %1$s</string>
 </resources>

@@ -52,4 +52,49 @@
         android:layout_marginTop="24dp"
         android:visibility="gone" />
 
+    <!-- Partner Data Section -->
+    <LinearLayout
+        android:id="@+id/partnerDataLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="24dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/partnerBattery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/battery"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/partnerSteps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/steps"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/partnerGps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/gps"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/partnerMood"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mood"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/partnerUpdatedAt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/last_updated"
+            android:textSize="14sp" />
+    </LinearLayout>
+
 </LinearLayout>

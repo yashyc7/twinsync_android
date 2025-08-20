@@ -11,6 +11,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
+import android.view.View
 
 class HomePageActivity : AppCompatActivity() {
 
@@ -26,6 +27,9 @@ class HomePageActivity : AppCompatActivity() {
         val acceptCodeInput = findViewById<EditText>(R.id.acceptCodeInput)
         val acceptButton = findViewById<Button>(R.id.acceptButton)
         val unlinkButton = findViewById<Button>(R.id.unlinkButton)
+
+        // Example: when home screen loads, try fetching partner data
+        fetchPartnerData()
 
 //        val token = TokenManager.getAccessToken(this)
 //        Toast.makeText(this, "Token: $token", Toast.LENGTH_LONG).show()
@@ -137,5 +141,56 @@ class HomePageActivity : AppCompatActivity() {
                 }
             })
         }
+    }
+    private fun fetchPartnerData() {
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url("https://twinsync.vercel.app/api/userdata/partner-data/")
+            .addHeader("Authorization", "Bearer ${TokenManager.getAccessToken(this)}")
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    Toast.makeText(this@HomePageActivity, "Failed to fetch partner data", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string() ?: ""
+                if (response.isSuccessful && responseBody != "") {
+                    val json = JSONObject(responseBody)
+                    val battery = json.optString("battery", "-")
+                    val steps = json.optString("steps", "-")
+                    val gpsLat = json.optString("gps_lat", "-")
+                    val gpsLon = json.optString("gps_lon", "-")
+                    val mood = json.optString("mood", "-")
+                    val updatedAt = json.optString("updated_at", "-")
+
+                    runOnUiThread {
+                        findViewById<LinearLayout>(R.id.partnerDataLayout).visibility = View.VISIBLE
+
+                        findViewById<TextView>(R.id.partnerBattery).text =
+                            getString(R.string.partner_battery, battery)
+
+                        findViewById<TextView>(R.id.partnerSteps).text =
+                            getString(R.string.partner_steps, steps)
+
+                        findViewById<TextView>(R.id.partnerGps).text =
+                            getString(R.string.partner_gps, gpsLat, gpsLon)
+
+                        findViewById<TextView>(R.id.partnerMood).text =
+                            getString(R.string.partner_mood, mood)
+
+                        findViewById<TextView>(R.id.partnerUpdatedAt).text =
+                            getString(R.string.partner_updated_at, updatedAt)
+                    }
+                } else {
+                    runOnUiThread {
+                        Toast.makeText(this@HomePageActivity, "Error fetching partner data", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
     }
 }

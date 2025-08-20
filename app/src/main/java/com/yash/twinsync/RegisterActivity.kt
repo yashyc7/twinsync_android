@@ -76,9 +76,23 @@ class RegisterActivity : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
                 runOnUiThread {
                     if (response.isSuccessful) {
+                        val responseBody = response.body?.string()
+                        val jsonResponse = JSONObject(responseBody ?: "{}")
+                        val tokens = jsonResponse.getJSONObject("tokens")
+                        val access = tokens.optString("access")
+                        val refresh = tokens.optString("refresh")
+
+                        if (access.isNotEmpty() && refresh.isNotEmpty()) {
+                            TokenManager.saveTokens(this@RegisterActivity, access, refresh)
+                        }
+
                         Toast.makeText(this@RegisterActivity, "Registration successful!", Toast.LENGTH_SHORT).show()
-                        finish() // Go back to login screen
-                    } else {
+
+                        val intent = Intent(this@RegisterActivity, HomePageActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    }
+                    else {
                         Toast.makeText(this@RegisterActivity, "Registration failed: ${response.message}", Toast.LENGTH_SHORT).show()
                     }
                 }

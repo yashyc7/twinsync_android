@@ -78,15 +78,23 @@ class LoginActivity : AppCompatActivity() {
                     if (response.isSuccessful) {
                         val responseBody = response.body?.string()
                         val jsonResp = JSONObject(responseBody ?: "{}")
+                        val tokens = jsonResp.getJSONObject("tokens")
+                        val access = tokens.optString("access")
+                        val refresh = tokens.optString("refresh")
 
-                        val accessToken = jsonResp.optString("access")
-                        val refreshToken = jsonResp.optString("refresh")
+//                        Toast.makeText(this@LoginActivity, "Token: $access", Toast.LENGTH_LONG).show()
 
                         Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
 
-                        // ✅ Example: Save token (later use SharedPreferences)
-                        println("Access Token: $accessToken")
-                        println("Refresh Token: $refreshToken")
+                        if (access.isNotEmpty() && refresh.isNotEmpty()) {
+                            TokenManager.saveTokens(this@LoginActivity, access, refresh)
+                        }
+
+                        Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_SHORT).show()
+
+                        val intent = Intent(this@LoginActivity, HomePageActivity::class.java)
+                        startActivity(intent)
+                        finish()
 
                         // TODO: Move to home screen
                     } else {

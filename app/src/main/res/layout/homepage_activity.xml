@@ -1,0 +1,55 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <Button
+        android:id="@+id/createInviteButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/create_invite_code" />
+
+    <TextView
+        android:id="@+id/inviteCodeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/your_invite_code_will_appear_here"
+        android:layout_marginTop="16dp"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/copyButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/copy_code"
+        android:layout_marginTop="8dp" />
+
+    <EditText
+        android:id="@+id/acceptCodeInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/enter_invite_code"
+        android:layout_marginTop="24dp"
+        android:autofillHints="otp, username"
+        android:importantForAutofill="yes"
+        android:inputType="text"
+        android:maxLines="1"
+        android:singleLine="true"/>
+
+    <Button
+        android:id="@+id/acceptButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/accept_invitation"
+        android:layout_marginTop="8dp" />
+
+    <Button
+        android:id="@+id/unlinkButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/unlink_partner"
+        android:layout_marginTop="24dp"
+        android:visibility="gone" />
+
+</LinearLayout>

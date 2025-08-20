@@ -8,4 +8,10 @@
     <string name="full_name">Full name</string>
     <string name="already_have_account">Already have an account?</string>
     <string name="confirm_password">Confirm Password</string>
+    <string name="copy_code">Copy Code</string>
+    <string name="your_invite_code_will_appear_here">Your invite code will appear here</string>
+    <string name="create_invite_code">Create Invite Code</string>
+    <string name="enter_invite_code">Enter invite code</string>
+    <string name="accept_invitation">Accept Invitation</string>
+    <string name="unlink_partner">Unlink Partner</string>
 </resources>

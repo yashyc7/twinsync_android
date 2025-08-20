@@ -23,6 +23,12 @@
         <activity android:name=".RegisterActivity" />
         <activity android:name=".HomePageActivity" />
 
+
+        <!-- Update Mood Activity -->
+        <activity
+            android:name=".ui.UpdateMoodActivity"
+            android:exported="true" />
+
         <!-- Mood Widget Receiver -->
         <receiver
             android:name=".ui.MoodWidgetProvider"

@@ -20,13 +20,11 @@ import java.io.IOException
 class MoodWidgetProvider : AppWidgetProvider() {
 
     companion object {
-        private const val ACTION_SET_MOOD = "com.yash.twinsync.ACTION_SET_MOOD"
         private const val ACTION_REFRESH = "com.yash.twinsync.ACTION_REFRESH"
-        const val EXTRA_MOOD = "EXTRA_MOOD"
 
         private val client = OkHttpClient()
 
-        // Update widget UI for current user
+        // Update widget UI for current user mood
         fun updateMoodWidget(context: Context, appWidgetManager: AppWidgetManager, widgetId: Int, mood: String) {
             val views = RemoteViews(context.packageName, R.layout.mood_widget)
             views.setTextViewText(R.id.my_mood_value, mood)
@@ -90,22 +88,10 @@ class MoodWidgetProvider : AppWidgetProvider() {
         for (widgetId in appWidgetIds) {
             val views = RemoteViews(context.packageName, R.layout.mood_widget)
 
-            // Mood buttons
-            val moods = mapOf(
-                R.id.mood_happy to "😄 Happy",
-                R.id.mood_sad to "😢 Sad",
-                R.id.mood_excited to "🤩 Excited"
-            )
-            for ((buttonId, moodText) in moods) {
-                val intent = Intent(context, MoodWidgetProvider::class.java).apply {
-                    action = ACTION_SET_MOOD
-                    putExtra(EXTRA_MOOD, moodText)
-                }
-                val pendingIntent = PendingIntent.getBroadcast(
-                    context, buttonId, intent, PendingIntent.FLAG_IMMUTABLE
-                )
-                views.setOnClickPendingIntent(buttonId, pendingIntent)
-            }
+            // Update Mood button opens UpdateMoodActivity
+            val updateIntent = Intent(context, UpdateMoodActivity::class.java)
+            val updatePendingIntent = PendingIntent.getActivity(context, 0, updateIntent, PendingIntent.FLAG_IMMUTABLE)
+            views.setOnClickPendingIntent(R.id.update_mood_button, updatePendingIntent)
 
             // Refresh button
             val refreshIntent = Intent(context, MoodWidgetProvider::class.java).apply { action = ACTION_REFRESH }
@@ -120,7 +106,7 @@ class MoodWidgetProvider : AppWidgetProvider() {
         handler.postDelayed({
             val manager = AppWidgetManager.getInstance(context)
             updatePartnerData(context, manager, componentName)
-        }, 5 * 60 * 1000L) // 5 minutes
+        }, 5 * 60 * 1000L)
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -128,20 +114,8 @@ class MoodWidgetProvider : AppWidgetProvider() {
         val appWidgetManager = AppWidgetManager.getInstance(context)
         val componentName = ComponentName(context, MoodWidgetProvider::class.java)
 
-        when (intent.action) {
-            ACTION_SET_MOOD -> {
-                val mood = intent.getStringExtra(EXTRA_MOOD) ?: "--"
-
-                // Update widget UI
-                val ids = appWidgetManager.getAppWidgetIds(componentName)
-                for (id in ids) updateMoodWidget(context, appWidgetManager, id, mood)
-
-                // Update server
-                postUserMood(context, mood)
-            }
-            ACTION_REFRESH -> {
-                updatePartnerData(context, appWidgetManager, componentName)
-            }
+        if (intent.action == ACTION_REFRESH) {
+            updatePartnerData(context, appWidgetManager, componentName)
         }
     }
 }

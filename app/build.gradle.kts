@@ -59,4 +59,6 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0") // for Material Design buttons etc.
     implementation("com.squareup.okhttp3:okhttp:4.11.0") // for API calls
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
+// latest stable version
 }

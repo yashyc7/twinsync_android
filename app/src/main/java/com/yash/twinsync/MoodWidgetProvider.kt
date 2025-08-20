@@ -6,9 +6,8 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.os.Handler
-import android.os.Looper
 import android.widget.RemoteViews
+import androidx.work.*
 import com.yash.twinsync.R
 import com.yash.twinsync.TokenManager
 import okhttp3.*
@@ -16,12 +15,12 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 class MoodWidgetProvider : AppWidgetProvider() {
 
     companion object {
         private const val ACTION_REFRESH = "com.yash.twinsync.ACTION_REFRESH"
-
         private val client = OkHttpClient()
 
         // Update widget UI for current user mood
@@ -80,6 +79,18 @@ class MoodWidgetProvider : AppWidgetProvider() {
                 override fun onResponse(call: Call, response: Response) {}
             })
         }
+
+        // Schedule WorkManager to refresh partner data every 15 minutes
+        fun schedulePeriodicRefresh(context: Context) {
+            val workRequest = PeriodicWorkRequestBuilder<RefreshWorker>(
+                15, TimeUnit.MINUTES
+            ).build()
+            WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                "PartnerRefreshWork",
+                ExistingPeriodicWorkPolicy.KEEP,
+                workRequest
+            )
+        }
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
@@ -99,15 +110,13 @@ class MoodWidgetProvider : AppWidgetProvider() {
             views.setOnClickPendingIntent(R.id.refresh_button, refreshPendingIntent)
 
             appWidgetManager.updateAppWidget(widgetId, views)
-            updatePartnerData(context, appWidgetManager, componentName) // <-- fetch immediately
+
+            // Fetch partner data immediately when widget loads
+            updatePartnerData(context, appWidgetManager, componentName)
         }
 
-        // Auto-refresh partner data every 5 minutes
-        val handler = Handler(Looper.getMainLooper())
-        handler.postDelayed({
-            val manager = AppWidgetManager.getInstance(context)
-            updatePartnerData(context, manager, componentName)
-        }, 5 * 60 * 1000L)
+        // Start periodic background refresh
+        schedulePeriodicRefresh(context)
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -118,5 +127,15 @@ class MoodWidgetProvider : AppWidgetProvider() {
         if (intent.action == ACTION_REFRESH) {
             updatePartnerData(context, appWidgetManager, componentName)
         }
+    }
+}
+
+// Worker class to refresh partner data in background
+class RefreshWorker(private val context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
+    override fun doWork(): Result {
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val componentName = ComponentName(context, MoodWidgetProvider::class.java)
+        MoodWidgetProvider.updatePartnerData(context, appWidgetManager, componentName)
+        return Result.success()
     }
 }

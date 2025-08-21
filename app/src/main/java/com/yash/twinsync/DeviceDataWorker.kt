@@ -16,6 +16,7 @@ import com.yash.twinsync.TokenManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull  // ADDED: For timeout handling
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -27,6 +28,8 @@ class DeviceDataWorker(appContext: Context, params: WorkerParameters)
     companion object {
         private val client = OkHttpClient()
         private const val TAG = "DeviceDataWorker"
+        private const val LOCATION_TIMEOUT = 15000L  // ADDED: 15 second timeout
+        private const val LOCATION_MAX_AGE = 300000L  // ADDED: 5 minutes max age for cached location
     }
 
     override suspend fun doWork(): Result {
@@ -35,10 +38,14 @@ class DeviceDataWorker(appContext: Context, params: WorkerParameters)
         val battery = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
         Log.d(TAG, "Battery: $battery")
 
-
-        // 3) GPS
+        // 3) GPS - UPDATED: Better error handling and logging
         val (lat, lon) = getLastKnownLocationSafe()
         Log.d(TAG, "GPS: lat=$lat, lon=$lon")
+
+        // ADDED: Log if GPS data is missing
+        if (lat == 0.0 && lon == 0.0) {
+            Log.w(TAG, "GPS coordinates are 0,0 - location may not be available")
+        }
 
         // 4) Build JSON
         val json = JSONObject().apply {
@@ -77,33 +84,74 @@ class DeviceDataWorker(appContext: Context, params: WorkerParameters)
         }
     }
 
+    // UPDATED: Added background location permission check
     private fun hasLocationPermission(): Boolean {
         val fine = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         val coarse = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-        return fine || coarse
+
+        // ADDED: Check for background location permission (Android 10+)
+        val backgroundLocation = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
+        } else {
+            true // Not required for older versions
+        }
+
+        Log.d(TAG, "Permissions - Fine: $fine, Coarse: $coarse, Background: $backgroundLocation")
+        return (fine || coarse) && backgroundLocation
     }
 
     @SuppressLint("MissingPermission")
     private suspend fun getLastKnownLocationSafe(): Pair<Double, Double> {
-        if (!hasLocationPermission()) return 0.0 to 0.0
+        if (!hasLocationPermission()) {
+            Log.w(TAG, "Location permission not granted")
+            return 0.0 to 0.0
+        }
 
         val fused = LocationServices.getFusedLocationProviderClient(applicationContext)
 
-        // Try last location quickly
+        // UPDATED: Try last location with age check
         try {
             val last = fused.lastLocation.await()
-            if (last != null) return last.latitude to last.longitude
-        } catch (_: Exception) {}
+            if (last != null) {
+                val age = System.currentTimeMillis() - last.time
+                Log.d(TAG, "Last known location age: ${age / 1000} seconds")
 
-        // Fallback: request a fresh location (may still return null quickly)
-        return try {
-            val tokenSource = CancellationTokenSource()
-            val task: Task<android.location.Location> =
-                fused.getCurrentLocation(com.google.android.gms.location.Priority.PRIORITY_BALANCED_POWER_ACCURACY, tokenSource.token)
-            val loc = task.await()
-            if (loc != null) loc.latitude to loc.longitude else 0.0 to 0.0
+                // ADDED: Only use cached location if it's recent enough
+                if (age < LOCATION_MAX_AGE) {
+                    Log.d(TAG, "Using cached location")
+                    return last.latitude to last.longitude
+                } else {
+                    Log.d(TAG, "Cached location too old, requesting fresh location")
+                }
+            }
         } catch (e: Exception) {
-            Log.w(TAG, "getCurrentLocation failed: ${e.message}")
+            Log.w(TAG, "Failed to get last location: ${e.message}")
+        }
+
+        // UPDATED: Request fresh location with timeout and high accuracy
+        return try {
+            Log.d(TAG, "Requesting fresh location...")
+
+            // ADDED: Use withTimeoutOrNull for better timeout handling
+            val location = withTimeoutOrNull(LOCATION_TIMEOUT) {
+                val tokenSource = CancellationTokenSource()
+                val task: Task<android.location.Location> = fused.getCurrentLocation(
+                    // UPDATED: Changed to HIGH_ACCURACY for better results when screen is off
+                    com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY,
+                    tokenSource.token
+                )
+                task.await()
+            }
+
+            if (location != null) {
+                Log.d(TAG, "Fresh location obtained successfully")
+                location.latitude to location.longitude
+            } else {
+                Log.w(TAG, "Fresh location request timed out or returned null")
+                0.0 to 0.0
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "getCurrentLocation failed: ${e.message}")
             0.0 to 0.0
         }
     }

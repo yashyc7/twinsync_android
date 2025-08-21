@@ -18,26 +18,44 @@ import android.content.pm.PackageManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import android.widget.ProgressBar
-
+import androidx.appcompat.app.AlertDialog  // ADDED: For permission explanation dialog
 
 class HomePageActivity : AppCompatActivity() {
 
     private lateinit var progressBar: ProgressBar
 
-    // 1. Launcher for requesting multiple permissions
+    // UPDATED: Added background location permission
     private val requestPermissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        val locationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+        val fineLocationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+        val coarseLocationGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+        val backgroundLocationGranted = permissions[Manifest.permission.ACCESS_BACKGROUND_LOCATION] ?: true // true for older Android versions
 
-        if (locationGranted ) {
-           print("granted")
+        if (fineLocationGranted || coarseLocationGranted) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q && !backgroundLocationGranted) {
+                // ADDED: Request background location separately
+                showBackgroundLocationDialog()
+            } else {
+                Toast.makeText(this, "All permissions granted!", Toast.LENGTH_SHORT).show()
+            }
         } else {
-            print("not granted")
-            checkAndRequestPermissions()
+            Toast.makeText(this, "Location permission is required for GPS tracking", Toast.LENGTH_LONG).show()
+            // ADDED: Show explanation and retry
+            showPermissionExplanationDialog()
         }
     }
 
+    // ADDED: Separate launcher for background location (Android 10+)
+    private val requestBackgroundLocationLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            Toast.makeText(this, "Background location permission granted!", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Background location denied. GPS may not work when screen is off.", Toast.LENGTH_LONG).show()
+        }
+    }
 
     private val client = OkHttpClient()
 
@@ -55,13 +73,15 @@ class HomePageActivity : AppCompatActivity() {
         val unlinkButton = findViewById<Button>(R.id.unlinkButton)
         val logoutButton = findViewById<Button>(R.id.logoutButton)
 
-
         // Partner data UI section
         val partnerDataLayout = findViewById<LinearLayout>(R.id.partnerDataLayout)
 
         // Always fetch partner data on load
         fetchPartnerData()
         checkAndRequestPermissions()
+
+        // ... rest of your existing onCreate code remains the same ...
+        // (createInviteButton, copyButton, acceptButton, unlinkButton, logoutButton listeners)
 
         // Create invite code
         createInviteButton.setOnClickListener {
@@ -76,7 +96,6 @@ class HomePageActivity : AppCompatActivity() {
 
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-
                     runOnUiThread {
                         progressBar.visibility=View.GONE
                         Toast.makeText(this@HomePageActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show() }
@@ -241,7 +260,6 @@ class HomePageActivity : AppCompatActivity() {
                         findViewById<TextView>(R.id.partnerBattery).text =
                             getString(R.string.partner_battery, battery)
 
-
                         findViewById<TextView>(R.id.partnerGps).text =
                             getString(R.string.partner_gps, gpsLat, gpsLon)
 
@@ -263,13 +281,6 @@ class HomePageActivity : AppCompatActivity() {
     private fun logoutUser() {
         val refreshToken = TokenManager.getRefreshToken(this)
 
-//        if (refreshToken != null) {
-//            // send it in your logout API request
-//            Toast.makeText(this, "Refresh token: $refreshToken", Toast.LENGTH_SHORT).show()
-//        } else {
-//            Toast.makeText(this, "No refresh token found", Toast.LENGTH_SHORT).show()
-//        }
-
         if (refreshToken == null) {
             // No token → clear and go to login
             TokenManager.clearTokens(this)
@@ -283,7 +294,6 @@ class HomePageActivity : AppCompatActivity() {
 
         val body = json.toString()
             .toRequestBody("application/json; charset=utf-8".toMediaType())
-
 
         val request = Request.Builder()
             .url(url)
@@ -321,19 +331,55 @@ class HomePageActivity : AppCompatActivity() {
         finish()
     }
 
+    // UPDATED: Request both foreground and background location permissions
     private fun checkAndRequestPermissions() {
         val permissionsToRequest = mutableListOf<String>()
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
+        // Check basic location permissions
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
         }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            permissionsToRequest.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+        }
 
+        // ADDED: For Android 10+, also request background location
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                permissionsToRequest.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+            }
+        }
 
         if (permissionsToRequest.isNotEmpty()) {
             requestPermissionsLauncher.launch(permissionsToRequest.toTypedArray())
         }
     }
 
+    // ADDED: Show dialog explaining why background location is needed
+    private fun showBackgroundLocationDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Background Location Permission")
+            .setMessage("To track your location when the screen is off, we need background location permission. This helps keep your partner updated even when you're not actively using the app.")
+            .setPositiveButton("Grant Permission") { _, _ ->
+                requestBackgroundLocationLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+            }
+            .setNegativeButton("Skip") { _, _ ->
+                Toast.makeText(this, "Background location skipped. GPS may not work when screen is off.", Toast.LENGTH_LONG).show()
+            }
+            .show()
+    }
+
+    // ADDED: Show explanation for denied permissions
+    private fun showPermissionExplanationDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Location Permission Required")
+            .setMessage("This app needs location permission to share your GPS coordinates with your partner. Without this permission, location sharing won't work.")
+            .setPositiveButton("Try Again") { _, _ ->
+                checkAndRequestPermissions()
+            }
+            .setNegativeButton("Cancel") { _, _ ->
+                Toast.makeText(this, "Location features will not work without permission", Toast.LENGTH_LONG).show()
+            }
+            .show()
+    }
 }

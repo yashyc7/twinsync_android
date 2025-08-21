@@ -16,7 +16,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/updated_logo_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Twinsync">
+        android:theme="@style/Theme.TwinSync">
 
         <activity android:name=".SplashActivity" android:exported="true">
             <intent-filter>

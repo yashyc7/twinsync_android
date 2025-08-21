@@ -151,7 +151,12 @@ class MoodWidgetProvider : AppWidgetProvider() {
         val componentName = ComponentName(context, MoodWidgetProvider::class.java)
 
         if (intent.action == ACTION_REFRESH) {
+            // 1) Fetch partner data
             updatePartnerData(context, appWidgetManager, componentName)
+
+            // 2) Send your own data instantly
+            val req = androidx.work.OneTimeWorkRequestBuilder<com.yash.twinsync.worker.DeviceDataWorker>().build()
+            androidx.work.WorkManager.getInstance(context).enqueue(req)
         }
     }
 }

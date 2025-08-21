@@ -49,12 +49,14 @@ class MoodWidgetProvider : AppWidgetProvider() {
                         val partnerBattery = "Battery: ${json.optInt("battery", 0)}%"
                         val partnerSteps = "Steps: ${json.optInt("steps", 0)}"
                         val partnerGps = "GPS: ${json.opt("gps_lat")}, ${json.opt("gps_lon")}"
+                        val lastUpdatedOn="Last updated at: ${json.optString("updated_at", "--")}"
 
                         val views = RemoteViews(context.packageName, R.layout.mood_widget)
                         views.setTextViewText(R.id.partner_mood, partnerMood)
                         views.setTextViewText(R.id.partner_battery, partnerBattery)
                         views.setTextViewText(R.id.partner_steps, partnerSteps)
                         views.setTextViewText(R.id.partner_gps, partnerGps)
+                        views.setTextViewText(R.id.last_updated_on,lastUpdatedOn)
 
                         appWidgetManager.updateAppWidget(componentName, views)
                     }

@@ -56,6 +56,12 @@
         android:layout_height="wrap_content"
         android:text="GPS: --" />
 
+    <TextView
+        android:id="@+id/last_updated_on"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Last Updated At: --" />
+
     <!-- Refresh Button -->
     <Button
         android:id="@+id/refresh_button"

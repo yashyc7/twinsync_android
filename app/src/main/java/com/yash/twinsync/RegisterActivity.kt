@@ -11,6 +11,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
 import android.content.Intent
+import android.widget.ProgressBar
+import android.view.View
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -19,11 +21,16 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var passwordInput: EditText
     private lateinit var registerButton: Button
 
+    private lateinit var progressBar: ProgressBar
+
+
     private val client = OkHttpClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
+
+        progressBar = findViewById(R.id.progressBar)
 
         nameInput = findViewById(R.id.nameInput)
         emailInput = findViewById(R.id.emailInput)
@@ -66,15 +73,19 @@ class RegisterActivity : AppCompatActivity() {
             .post(body)
             .build()
 
+        runOnUiThread { progressBar.visibility=View.VISIBLE }
+
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
-                    Toast.makeText(this@RegisterActivity, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    progressBar.visibility=View.GONE
+                    Toast.makeText(this@RegisterActivity, "Network error ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 runOnUiThread {
+                    progressBar.visibility=View.GONE
                     if (response.isSuccessful) {
                         val responseBody = response.body?.string()
                         val jsonResponse = JSONObject(responseBody ?: "{}")

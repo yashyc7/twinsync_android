@@ -17,9 +17,12 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import android.widget.ProgressBar
 
 
 class HomePageActivity : AppCompatActivity() {
+
+    private lateinit var progressBar: ProgressBar
 
     // 1. Launcher for requesting multiple permissions
     private val requestPermissionsLauncher = registerForActivityResult(
@@ -41,6 +44,8 @@ class HomePageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.homepage_activity)
+
+        progressBar = findViewById(R.id.progressBar)
 
         val inviteCodeText = findViewById<TextView>(R.id.inviteCodeText)
         val createInviteButton = findViewById<Button>(R.id.createInviteButton)
@@ -67,13 +72,19 @@ class HomePageActivity : AppCompatActivity() {
                 .addHeader("Authorization", "Bearer ${TokenManager.getAccessToken(this)}")
                 .build()
 
+            runOnUiThread { progressBar.visibility=View.VISIBLE }
+
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    runOnUiThread { Toast.makeText(this@HomePageActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show() }
+
+                    runOnUiThread {
+                        progressBar.visibility=View.GONE
+                        Toast.makeText(this@HomePageActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show() }
                 }
 
                 override fun onResponse(call: Call, response: Response) {
                     runOnUiThread {
+                        progressBar.visibility=View.GONE
                         if (response.isSuccessful) {
                             val responseBody = response.body?.string() ?: ""
                             val jsonResp = JSONObject(responseBody)
@@ -118,14 +129,18 @@ class HomePageActivity : AppCompatActivity() {
                 .post(body)
                 .addHeader("Authorization", "Bearer ${TokenManager.getAccessToken(this)}")
                 .build()
+            runOnUiThread { progressBar.visibility=View.VISIBLE }
 
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    runOnUiThread { Toast.makeText(this@HomePageActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show() }
+                    runOnUiThread {
+                        progressBar.visibility=View.GONE
+                        Toast.makeText(this@HomePageActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show() }
                 }
 
                 override fun onResponse(call: Call, response: Response) {
                     runOnUiThread {
+                        progressBar.visibility=View.GONE
                         if (response.isSuccessful) {
                             Toast.makeText(this@HomePageActivity, "Paired successfully 🎉", Toast.LENGTH_SHORT).show()
                             unlinkButton.visibility = View.VISIBLE
@@ -149,13 +164,18 @@ class HomePageActivity : AppCompatActivity() {
                 .addHeader("Authorization", "Bearer ${TokenManager.getAccessToken(this)}")
                 .build()
 
+            runOnUiThread { progressBar.visibility=View.VISIBLE }
+
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    runOnUiThread { Toast.makeText(this@HomePageActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show() }
+                    runOnUiThread {
+                        progressBar.visibility=View.GONE
+                        Toast.makeText(this@HomePageActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show() }
                 }
 
                 override fun onResponse(call: Call, response: Response) {
                     runOnUiThread {
+                        progressBar.visibility=View.GONE
                         if (response.isSuccessful) {
                             Toast.makeText(this@HomePageActivity, "Unlinked successfully ✅", Toast.LENGTH_SHORT).show()
                             unlinkButton.visibility = View.GONE
@@ -190,10 +210,12 @@ class HomePageActivity : AppCompatActivity() {
             .url("https://twinsync.vercel.app/api/userdata/partner-data/")
             .addHeader("Authorization", "Bearer ${TokenManager.getAccessToken(this)}")
             .build()
+        runOnUiThread { progressBar.visibility=View.VISIBLE }
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
+                    progressBar.visibility=View.GONE
                     Toast.makeText(this@HomePageActivity, "Failed to fetch partner data", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -201,6 +223,7 @@ class HomePageActivity : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
                 val responseBody = response.body?.string() ?: ""
                 runOnUiThread {
+                    progressBar.visibility=View.GONE
                     if (response.isSuccessful && responseBody.isNotEmpty()) {
                         val json = JSONObject(responseBody)
                         val battery = json.optString("battery", "-")
@@ -269,16 +292,19 @@ class HomePageActivity : AppCompatActivity() {
             .url(url)
             .post(body)
             .build()
+        runOnUiThread { progressBar.visibility=View.VISIBLE }
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
+                    progressBar.visibility=View.GONE
                     Toast.makeText(this@HomePageActivity, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 runOnUiThread {
+                    progressBar.visibility=View.GONE
                     if (response.isSuccessful) {
                         TokenManager.clearTokens(this@HomePageActivity)
                         Toast.makeText(this@HomePageActivity, "Logged out successfully!", Toast.LENGTH_SHORT).show()

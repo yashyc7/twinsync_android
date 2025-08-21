@@ -29,12 +29,12 @@ class HomePageActivity : AppCompatActivity() {
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         val locationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
-        val activityRecognitionGranted = permissions[Manifest.permission.ACTIVITY_RECOGNITION] ?: false
 
-        if (locationGranted && activityRecognitionGranted) {
+        if (locationGranted ) {
            print("granted")
         } else {
             print("not granted")
+            checkAndRequestPermissions()
         }
     }
 
@@ -227,7 +227,6 @@ class HomePageActivity : AppCompatActivity() {
                     if (response.isSuccessful && responseBody.isNotEmpty()) {
                         val json = JSONObject(responseBody)
                         val battery = json.optString("battery", "-")
-                        val steps = json.optString("steps", "-")
                         val gpsLat = json.optString("gps_lat", "-")
                         val gpsLon = json.optString("gps_lon", "-")
                         val mood = json.optString("mood", "-")
@@ -242,8 +241,6 @@ class HomePageActivity : AppCompatActivity() {
                         findViewById<TextView>(R.id.partnerBattery).text =
                             getString(R.string.partner_battery, battery)
 
-                        findViewById<TextView>(R.id.partnerSteps).text =
-                            getString(R.string.partner_steps, steps)
 
                         findViewById<TextView>(R.id.partnerGps).text =
                             getString(R.string.partner_gps, gpsLat, gpsLon)
@@ -333,11 +330,6 @@ class HomePageActivity : AppCompatActivity() {
             permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
         }
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            permissionsToRequest.add(Manifest.permission.ACTIVITY_RECOGNITION)
-        }
 
         if (permissionsToRequest.isNotEmpty()) {
             requestPermissionsLauncher.launch(permissionsToRequest.toTypedArray())

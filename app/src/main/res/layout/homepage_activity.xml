@@ -67,17 +67,17 @@
         android:visibility="gone">
 
         <TextView
+            android:id="@+id/partnerMood"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mood"
+            android:textSize="16sp" />
+
+        <TextView
             android:id="@+id/partnerBattery"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/battery"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/partnerSteps"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/steps"
             android:textSize="16sp" />
 
         <TextView
@@ -87,12 +87,7 @@
             android:text="@string/gps"
             android:textSize="16sp" />
 
-        <TextView
-            android:id="@+id/partnerMood"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/mood"
-            android:textSize="16sp" />
+
 
         <TextView
             android:id="@+id/partnerUpdatedAt"

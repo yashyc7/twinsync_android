@@ -1,13 +1,16 @@
-package com.yash.twinsync.services
+package com.yash.twinsync
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
+import com.yash.twinsync.ui.MoodWidgetProvider
 
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        Log.d("BootReceiver", "BOOT_COMPLETED received, starting StepCounterService")
-        StepCounterService.start(context)
+        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+            // Re-schedule both workers after reboot
+            MoodWidgetProvider.schedulePeriodicRefresh(context)
+            MoodWidgetProvider.scheduleDeviceDataWorker(context)
+        }
     }
 }

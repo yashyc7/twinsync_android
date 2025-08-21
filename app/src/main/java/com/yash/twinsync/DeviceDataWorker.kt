@@ -35,10 +35,6 @@ class DeviceDataWorker(appContext: Context, params: WorkerParameters)
         val battery = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
         Log.d(TAG, "Battery: $battery")
 
-        // 2) Steps (from SharedPreferences set by StepCounterService)
-        val prefs = applicationContext.getSharedPreferences("steps_prefs", Context.MODE_PRIVATE)
-        val steps = prefs.getInt("latest_steps", 0)
-        Log.d(TAG, "Steps (today): $steps")
 
         // 3) GPS
         val (lat, lon) = getLastKnownLocationSafe()
@@ -47,7 +43,6 @@ class DeviceDataWorker(appContext: Context, params: WorkerParameters)
         // 4) Build JSON
         val json = JSONObject().apply {
             put("battery", battery)
-            put("steps", steps)
             put("gps_lat", lat)
             put("gps_lon", lon)
         }

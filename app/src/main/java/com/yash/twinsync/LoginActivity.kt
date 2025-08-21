@@ -4,12 +4,15 @@ import android.widget.Button
 import android.widget.Toast
 import android.widget.EditText
 import android.os.Bundle
+import android.widget.ProgressBar
 import okhttp3.*
 import java.io.IOException
 import androidx.appcompat.app.AppCompatActivity
 import org.json.JSONObject
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
+import android.view.View
+
 
 
 
@@ -19,6 +22,9 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var passwordInput: EditText
     private lateinit var loginButton: Button
     private lateinit var registerButton: Button
+
+    private lateinit var progressBar: ProgressBar
+
 
     private val client = OkHttpClient()
 
@@ -30,6 +36,8 @@ class LoginActivity : AppCompatActivity() {
         passwordInput = findViewById(R.id.passwordInput)
         loginButton = findViewById(R.id.loginButton)
         registerButton = findViewById(R.id.registerButton)
+        progressBar = findViewById(R.id.progressBar)
+
 
         // ✅ Login button click
         loginButton.setOnClickListener {
@@ -65,16 +73,19 @@ class LoginActivity : AppCompatActivity() {
             .url(url)
             .post(body)
             .build()
+        runOnUiThread { progressBar.visibility=View.VISIBLE }
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
+                    progressBar.visibility= View.GONE
                     Toast.makeText(this@LoginActivity, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onResponse(call: Call, response: Response) {
                 runOnUiThread {
+                    progressBar.visibility=View.GONE
                     if (response.isSuccessful) {
                         val responseBody = response.body?.string()
                         val jsonResp = JSONObject(responseBody ?: "{}")

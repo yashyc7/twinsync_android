@@ -17,6 +17,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import androidx.core.net.toUri
 
 class MoodWidgetProvider : AppWidgetProvider() {
 
@@ -47,14 +48,31 @@ class MoodWidgetProvider : AppWidgetProvider() {
                         val json = JSONObject(body)
                         val partnerMood = "Mood: ${json.optString("mood", "--")}"
                         val partnerBattery = "Battery: ${json.optInt("battery", 0)}%"
-                        val partnerGps = "GPS: ${json.opt("gps_lat")}, ${json.opt("gps_lon")}"
-                        val lastUpdatedOn="Last updated at: ${json.optString("updated_at", "--")}"
+                        val gpsLat = json.opt("gps_lat")
+                        val gpsLon = json.opt("gps_lon")
+                        val partnerGps = "GPS: $gpsLat, $gpsLon"
+                        val lastUpdatedOn = "Last updated at: ${json.optString("updated_at", "--")}"
 
                         val views = RemoteViews(context.packageName, R.layout.mood_widget)
                         views.setTextViewText(R.id.partner_mood, partnerMood)
                         views.setTextViewText(R.id.partner_battery, partnerBattery)
                         views.setTextViewText(R.id.partner_gps, partnerGps)
-                        views.setTextViewText(R.id.last_updated_on,lastUpdatedOn)
+                        views.setTextViewText(R.id.last_updated_on, lastUpdatedOn)
+
+                        // 👉 Make GPS clickable (open Google Maps)
+                        if (gpsLat != null && gpsLon != null) {
+                            val gmmIntentUri = "geo:$gpsLat,$gpsLon?q=$gpsLat,$gpsLon".toUri()
+                            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
+                                setPackage("com.google.android.apps.maps") // Open in Google Maps
+                            }
+                            val pendingIntent = PendingIntent.getActivity(
+                                context,
+                                0,
+                                mapIntent,
+                                PendingIntent.FLAG_IMMUTABLE
+                            )
+                            views.setOnClickPendingIntent(R.id.partner_gps, pendingIntent)
+                        }
 
                         appWidgetManager.updateAppWidget(componentName, views)
                     }

@@ -102,6 +102,10 @@ class MoodWidgetProvider : AppWidgetProvider() {
                 val gpsLat = json.optDouble("gps_lat", Double.NaN)
                 val gpsLon = json.optDouble("gps_lon", Double.NaN)
                 val updatedAt = json.optString("updated_at", "")
+                val selfMood=json.optString("self_mood","--")
+
+                // ✅ Update My Mood section
+                views.setTextViewText(R.id.my_mood_value, selfMood)
 
                 // Format and set text views
                 views.setTextViewText(R.id.partner_mood, "😊 $mood")
@@ -166,20 +170,6 @@ class MoodWidgetProvider : AppWidgetProvider() {
             views.setTextViewText(R.id.partner_gps, "📍 --")
             views.setTextViewText(R.id.last_updated_on, "🕒 $errorMessage")
             appWidgetManager.updateAppWidget(componentName, views)
-        }
-
-        private fun formatTimestamp(timestamp: String): String {
-            if (timestamp.isEmpty()) return "Never"
-
-            return try {
-                // Adjust this format based on your API's timestamp format
-                val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
-                val outputFormat = SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault())
-                val date = inputFormat.parse(timestamp)
-                date?.let { outputFormat.format(it) } ?: "Unknown"
-            } catch (e: Exception) {
-                "Recently"
-            }
         }
 
         fun postUserMood(context: Context, mood: String) {

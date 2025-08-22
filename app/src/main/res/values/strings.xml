@@ -25,4 +25,5 @@
     <string name="partner_mood">Mood: %1$s</string>
     <string name="partner_updated_at">Last Updated: %1$s</string>
     <string name="logout">Logout from this device</string>
+    <string name="loading">loading...</string>
 </resources>

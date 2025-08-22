@@ -4,64 +4,153 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="8dp"
-    android:background="@android:color/white">
+    android:padding="12dp"
+    android:background="#FFFFFF">
 
-    <!-- My Mood -->
-    <TextView
-        android:id="@+id/my_mood_value"
-        android:layout_width="wrap_content"
+    <!-- Header Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="--"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="8dp">
 
-    <Button
-        android:id="@+id/update_mood_button"
-        android:layout_width="wrap_content"
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="TwinSync"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#333333" />
+
+        <Button
+            android:id="@+id/refresh_button"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:text="🔄"
+            android:textSize="12sp"
+            android:background="#F0F0F0"
+            android:padding="4dp" />
+    </LinearLayout>
+
+    <!-- My Mood Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Update Mood"
-        android:layout_marginTop="4dp" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="#F5F5F5"
+        android:padding="8dp"
+        android:layout_marginBottom="8dp">
 
-    <!-- Partner Data -->
-    <TextView
-        android:id="@+id/partner_label"
-        android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="My Mood"
+                android:textSize="12sp"
+                android:textColor="#666666" />
+
+            <TextView
+                android:id="@+id/my_mood_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#333333" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/update_mood_button"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="Update"
+            android:textSize="10sp"
+            android:background="#F0F0F0"
+            android:textColor="#000000"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp" />
+    </LinearLayout>
+
+    <!-- Partner Data Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Partner Data"
-        android:textStyle="bold"
-        android:layout_marginTop="8dp" />
+        android:orientation="vertical"
+        android:background="#E8F4FD"
+        android:padding="8dp">
 
-    <TextView
-        android:id="@+id/partner_mood"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Mood: --" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Partner Info"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#1976D2"
+            android:layout_marginBottom="4dp" />
 
-    <TextView
-        android:id="@+id/partner_battery"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Battery: --" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/partner_gps"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="GPS: --" />
+                <TextView
+                    android:id="@+id/partner_mood"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="😊 --"
+                    android:textSize="11sp"
+                    android:textColor="#333333"
+                    android:layout_marginBottom="2dp" />
 
-    <TextView
-        android:id="@+id/last_updated_on"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Last Updated At: --" />
+                <TextView
+                    android:id="@+id/partner_battery"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🔋 --"
+                    android:textSize="11sp"
+                    android:textColor="#333333"
+                    android:layout_marginBottom="2dp" />
+            </LinearLayout>
 
-    <!-- Refresh Button -->
-    <Button
-        android:id="@+id/refresh_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Refresh"
-        android:layout_marginTop="8dp" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/partner_gps"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📍 --"
+                    android:textSize="11sp"
+                    android:textColor="#1976D2"
+                    android:background="#D0E7FF"
+                    android:padding="2dp"
+                    android:layout_marginBottom="2dp" />
+
+                <TextView
+                    android:id="@+id/last_updated_on"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🕒 --"
+                    android:textSize="10sp"
+                    android:textColor="#666666" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>

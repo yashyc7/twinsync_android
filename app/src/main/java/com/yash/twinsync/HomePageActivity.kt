@@ -242,6 +242,7 @@ class HomePageActivity : AppCompatActivity() {
 
     private fun fetchPartnerData() {
         lifecycleScope.launch {
+            showLoading(true)
             try {
                 val response = makeApiCall(
                     "https://twinsync.vercel.app/api/userdata/partner-data/",
@@ -269,6 +270,9 @@ class HomePageActivity : AppCompatActivity() {
                     showToast("Failed to fetch partner data")
                     updateUIForPairedState(false)
                 }
+            }
+            finally {
+                showLoading(false)
             }
         }
     }

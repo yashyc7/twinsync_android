@@ -31,6 +31,10 @@ import java.util.concurrent.TimeUnit
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.yash.twinsync.models.DailyUpdate
+import android.os.Build
+import android.os.PowerManager
+import android.provider.Settings
+import android.widget.Toast
 
 
 class HomePageActivity : AppCompatActivity() {
@@ -92,6 +96,7 @@ class HomePageActivity : AppCompatActivity() {
         fetchPartnerData()
         fetchDailyUpdates("2025-08-23")
         checkAndRequestPermissions()
+        requestBatteryOptimizationException()
     }
 
     private fun initializeViews() {
@@ -109,6 +114,23 @@ class HomePageActivity : AppCompatActivity() {
         partnerGps = findViewById(R.id.partnerGps)
         partnerUpdatedAt = findViewById(R.id.partnerUpdatedAt)
     }
+
+    private fun requestBatteryOptimizationException() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val pm = getSystemService(PowerManager::class.java)
+            if (pm != null && !pm.isIgnoringBatteryOptimizations(packageName)) {
+                try {
+                    val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                        data = Uri.parse("package:$packageName")
+                    }
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(this, "Unable to request battery optimization exception", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
 
     private fun setupClickListeners() {
         findViewById<Button>(R.id.createInviteButton).setOnClickListener {

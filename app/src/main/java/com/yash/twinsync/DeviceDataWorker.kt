@@ -21,6 +21,15 @@ import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
+import com.yash.twinsync.R
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
+import androidx.core.app.NotificationCompat
+import androidx.work.ForegroundInfo
+// Add import at top of DeviceDataWorker.kt
+import android.app.Service
+import android.content.pm.ServiceInfo
 
 class DeviceDataWorker(appContext: Context, params: WorkerParameters)
     : CoroutineWorker(appContext, params) {
@@ -33,6 +42,8 @@ class DeviceDataWorker(appContext: Context, params: WorkerParameters)
     }
 
     override suspend fun doWork(): Result {
+
+        setForeground(getForegroundInfo())
         // 1) Battery
         val batteryManager = applicationContext.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
         val battery = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
@@ -81,6 +92,38 @@ class DeviceDataWorker(appContext: Context, params: WorkerParameters)
                 Log.e(TAG, "POST failed: ${e.message}")
                 Result.retry()
             }
+        }
+    }
+
+    // DeviceDataWorker.kt - Update getForegroundInfo()
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        val channelId = "DeviceDataWorkerChannel"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                channelId,
+                "TwinSync Background Sync",
+                NotificationManager.IMPORTANCE_LOW
+            )
+            val manager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.createNotificationChannel(channel)
+        }
+
+        val notification = NotificationCompat.Builder(applicationContext, channelId)
+            .setContentTitle("TwinSync")
+            .setContentText("Syncing device data…")
+            .setSmallIcon(R.mipmap.updated_logo_round)
+            .setOngoing(true)
+            .build()
+
+        // ✅ FIX: Specify service type explicitly
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ForegroundInfo(
+                1,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+            )
+        } else {
+            ForegroundInfo(1, notification)
         }
     }
 

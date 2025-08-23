@@ -1,18 +1,22 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- INTERNET permission -->
+    <!-- Network + location permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-    <!-- ADDED: Background location permission for Android 10+ -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
-    <!-- ADDED: Wake lock permission (optional, for critical cases) -->
+    <!-- Foreground services -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
+
+    <!-- Wake + battery optimizations -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
 
 
     <application
@@ -61,6 +65,15 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
+
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="dataSync|location"
+            android:exported="false" />
+
+
+
+
 
 
     </application>

@@ -35,7 +35,9 @@ import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import android.widget.Toast
-
+import com.google.android.material.datepicker.MaterialDatePicker
+import java.text.SimpleDateFormat
+import  java.util.*
 
 class HomePageActivity : AppCompatActivity() {
 
@@ -94,7 +96,8 @@ class HomePageActivity : AppCompatActivity() {
 
         // Initial data fetch and permission check
         fetchPartnerData()
-        fetchDailyUpdates("2025-08-23")
+        val today=getTodayDate()
+        fetchDailyUpdates(today)
         checkAndRequestPermissions()
         requestBatteryOptimizationException()
     }
@@ -143,6 +146,10 @@ class HomePageActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.acceptButton).setOnClickListener {
             acceptInvitation()
+        }
+
+        findViewById<Button>(R.id.pickDateButton).setOnClickListener {
+            showDatePicker()
         }
 
         unlinkButton.setOnClickListener {
@@ -576,6 +583,28 @@ class HomePageActivity : AppCompatActivity() {
             Toast.makeText(context, "Google Maps not available", Toast.LENGTH_SHORT).show()
         }
     }
+
+    private fun showDatePicker() {
+        val datePicker =
+            MaterialDatePicker.Builder.datePicker()
+                .setTitleText("Select a date")
+                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .build()
+
+        datePicker.addOnPositiveButtonClickListener { selection ->
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val date = sdf.format(Date(selection))
+            fetchDailyUpdates(date)
+        }
+
+        datePicker.show(supportFragmentManager, "DATE_PICKER")
+    }
+
+    private fun getTodayDate(): String {
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return sdf.format(Date())
+    }
+
 
 
 

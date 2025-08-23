@@ -176,6 +176,13 @@
     </LinearLayout>
 
     <!-- Daily Updates List -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/pickDateButton"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pick Date" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/dailyUpdatesRecyclerView"
         android:layout_width="match_parent"

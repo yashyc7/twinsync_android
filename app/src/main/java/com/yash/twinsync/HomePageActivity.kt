@@ -6,6 +6,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.*
@@ -50,6 +51,10 @@ class HomePageActivity : AppCompatActivity() {
     private lateinit var partnerUpdatedAt: TextView
 
     private lateinit var dailyUpdatesAdapter: DailyUpdatesAdapter
+
+    private var partnerLat: Double? = null
+    private var partnerLon: Double? = null
+
 
     // HTTP Client with timeout configuration
     private val client = OkHttpClient.Builder()
@@ -121,6 +126,19 @@ class HomePageActivity : AppCompatActivity() {
         unlinkButton.setOnClickListener {
             showUnlinkConfirmation()
         }
+
+        partnerGps.setOnClickListener {
+            val lat = partnerLat
+            val lon = partnerLon
+            if (lat != null && lon != null) {
+                openGoogleMaps(this, lat, lon) // both are now Double
+            } else {
+                Toast.makeText(this, "No GPS location available", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+
+
 
         findViewById<Button>(R.id.logoutButton).setOnClickListener {
             showLogoutConfirmation()
@@ -296,6 +314,10 @@ class HomePageActivity : AppCompatActivity() {
         val gpsLon = json.optString("gps_lon", "-")
         val mood = json.optString("mood", "Unknown")
         val updatedAt = json.optString("updated_at", "Never")
+
+        // Save to class vars
+        partnerLat =gpsLat.toDoubleOrNull()
+        partnerLon =gpsLon.toDoubleOrNull()
 
         partnerBattery.text = "Battery: $battery%"
         partnerGps.text = if (gpsLat != "-" && gpsLon != "-") {
@@ -517,6 +539,19 @@ class HomePageActivity : AppCompatActivity() {
             } finally {
                 showLoading(false)
             }
+        }
+    }
+
+
+    private fun openGoogleMaps(context: Context, lat: Double, lon: Double) {
+        try {
+            val gmmIntentUri = Uri.parse("geo:$lat,$lon?q=$lat,$lon")
+            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
+                setPackage("com.google.android.apps.maps")
+            }
+            context.startActivity(mapIntent)
+        } catch (e: Exception) {
+            Toast.makeText(context, "Google Maps not available", Toast.LENGTH_SHORT).show()
         }
     }
 

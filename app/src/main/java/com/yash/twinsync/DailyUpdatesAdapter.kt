@@ -4,9 +4,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.yash.twinsync.R
 import com.yash.twinsync.models.DailyUpdate
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 
 class DailyUpdatesAdapter(private var updates: List<DailyUpdate>) :
     RecyclerView.Adapter<DailyUpdatesAdapter.UpdateViewHolder>() {
@@ -33,6 +37,17 @@ class DailyUpdatesAdapter(private var updates: List<DailyUpdate>) :
         holder.gps.text = if (update.gpsLat != null && update.gpsLon != null)
             "GPS: ${update.gpsLat}, ${update.gpsLon}" else "GPS: Not available"
         holder.time.text = update.loggedAt.replace("T", " ").substring(0, 16)
+
+        holder.gps.setOnClickListener {
+            val lat = update.gpsLat
+            val lon = update.gpsLon
+            if (lat != null && lon != null) {
+                openGoogleMaps(holder.itemView.context, lat, lon)
+            } else {
+                Toast.makeText(holder.itemView.context, "No GPS location available", Toast.LENGTH_SHORT).show()
+            }
+        }
+
     }
 
     override fun getItemCount() = updates.size
@@ -41,4 +56,23 @@ class DailyUpdatesAdapter(private var updates: List<DailyUpdate>) :
         updates = newUpdates
         notifyDataSetChanged()
     }
+
+    fun openGoogleMaps(context: Context, lat: Double, lon: Double) {
+        try {
+            // Create geo URI with coordinates
+            val gmmIntentUri = Uri.parse("geo:$lat,$lon?q=$lat,$lon")
+
+            // Create intent for Google Maps
+            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri).apply {
+                setPackage("com.google.android.apps.maps") // Force open in Google Maps
+            }
+
+            // Launch intent
+            context.startActivity(mapIntent)
+        } catch (e: Exception) {
+            Toast.makeText(context, "Google Maps not available", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
 }

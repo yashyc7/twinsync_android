@@ -273,7 +273,7 @@ class MoodWidgetProvider : AppWidgetProvider() {
         }
         val updatePendingIntent = PendingIntent.getActivity(
             context,
-            0,
+            widgetId,
             updateIntent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
@@ -284,8 +284,7 @@ class MoodWidgetProvider : AppWidgetProvider() {
             action = ACTION_REFRESH
         }
         val refreshPendingIntent = PendingIntent.getBroadcast(
-            context,
-            0,
+            context,widgetId+1000,
             refreshIntent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )

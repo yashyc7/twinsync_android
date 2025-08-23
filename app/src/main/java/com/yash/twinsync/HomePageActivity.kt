@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.textfield.TextInputEditText
+import com.yash.twinsync.adapters.DailyUpdatesAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -26,6 +27,10 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.yash.twinsync.models.DailyUpdate
+
 
 class HomePageActivity : AppCompatActivity() {
 
@@ -43,6 +48,8 @@ class HomePageActivity : AppCompatActivity() {
     private lateinit var partnerBattery: TextView
     private lateinit var partnerGps: TextView
     private lateinit var partnerUpdatedAt: TextView
+
+    private lateinit var dailyUpdatesAdapter: DailyUpdatesAdapter
 
     // HTTP Client with timeout configuration
     private val client = OkHttpClient.Builder()
@@ -68,11 +75,17 @@ class HomePageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.homepage_activity)
 
+        val recyclerView = findViewById<RecyclerView>(R.id.dailyUpdatesRecyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        dailyUpdatesAdapter = DailyUpdatesAdapter(emptyList())
+        recyclerView.adapter = dailyUpdatesAdapter
+
         initializeViews()
         setupClickListeners()
 
         // Initial data fetch and permission check
         fetchPartnerData()
+        fetchDailyUpdates("2025-08-23")
         checkAndRequestPermissions()
     }
 
@@ -461,4 +474,52 @@ class HomePageActivity : AppCompatActivity() {
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
+
+
+    private fun fetchDailyUpdates(date: String) {
+        lifecycleScope.launch {
+            showLoading(true)
+            try {
+                val json = JSONObject().put("date", date)
+                val response = makeApiCall(
+                    "https://twinsync.vercel.app/api/userdata/daily-updates/",
+                    "POST",
+                    json
+                )
+
+                if (response.isSuccessful) {
+                    val responseBody = response.body?.string() ?: "[]"
+                    val jsonArray = org.json.JSONArray(responseBody)
+
+                    val updates = mutableListOf<DailyUpdate>()
+                    for (i in 0 until jsonArray.length()) {
+                        val obj = jsonArray.getJSONObject(i)
+                        updates.add(
+                            DailyUpdate(
+                                battery = if (obj.isNull("battery")) null else obj.getInt("battery"),
+                                gpsLat = if (obj.isNull("gps_lat")) null else obj.getDouble("gps_lat"),
+                                gpsLon = if (obj.isNull("gps_lon")) null else obj.getDouble("gps_lon"),
+                                mood = if (obj.isNull("mood")) null else obj.getString("mood"),
+                                note = obj.getString("note"),
+                                loggedAt = obj.getString("logged_at")
+                            )
+                        )
+                    }
+
+                    runOnUiThread {
+                        dailyUpdatesAdapter.updateData(updates)
+                    }
+                } else {
+                    runOnUiThread { showToast("Failed to load daily updates") }
+                }
+            } catch (e: Exception) {
+                runOnUiThread { showToast("Error: ${e.localizedMessage}") }
+            } finally {
+                showLoading(false)
+            }
+        }
+    }
+
+
+
 }

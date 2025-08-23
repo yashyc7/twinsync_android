@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="?attr/selectableItemBackground">
+
+    <TextView
+        android:id="@+id/updateNote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Note"
+        android:textStyle="bold"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/updateMood"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mood: Happy"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/updateBattery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Battery: 75%"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/updateGps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GPS: 19.01, 72.85"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/updateTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="2025-08-23 12:44"
+        android:textSize="12sp"
+        android:textStyle="italic" />
+</LinearLayout>

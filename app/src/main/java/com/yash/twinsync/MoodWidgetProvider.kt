@@ -290,6 +290,18 @@ class MoodWidgetProvider : AppWidgetProvider() {
         )
         views.setOnClickPendingIntent(R.id.refresh_button, refreshPendingIntent)
 
+        // Partner Image Click
+        val imageIntent = Intent(context, ViewPartnerImageActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        val imagePendingIntent = PendingIntent.getActivity(
+            context,
+            widgetId + 2000,
+            imageIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        views.setOnClickPendingIntent(R.id.partner_image_click, imagePendingIntent)
+
         appWidgetManager.updateAppWidget(widgetId, views)
     }
 

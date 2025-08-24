@@ -71,6 +71,11 @@
             android:foregroundServiceType="dataSync|location"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.ViewPartnerImageActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+
 
 
 

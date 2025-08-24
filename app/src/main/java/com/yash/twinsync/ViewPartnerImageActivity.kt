@@ -7,29 +7,22 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.yash.twinsync.R
 import com.yash.twinsync.TokenManager
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
+import android.widget.ProgressBar
 
 class ViewPartnerImageActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_view_image)
 
-        // Debug toast
-        Toast.makeText(this, "Opening partner image...", Toast.LENGTH_SHORT).show()
-
-        val imageView = ImageView(this).apply {
-            layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
-            scaleType = ImageView.ScaleType.FIT_CENTER
-        }
-        setContentView(imageView)
-
+        val progressBar = findViewById<ProgressBar>(R.id.loadingIndicator)
+        val imageView = findViewById<ImageView>(R.id.partnerImageView)
 
         val token = TokenManager.getAccessToken(this) ?: return
 
@@ -51,11 +44,25 @@ class ViewPartnerImageActivity : AppCompatActivity() {
                         val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
 
                         withContext(Dispatchers.Main) {
+                            progressBar.visibility = ProgressBar.GONE
                             imageView.setImageBitmap(bitmap)
+                        }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            progressBar.visibility = ProgressBar.GONE
+                            Toast.makeText(this@ViewPartnerImageActivity, "No image shared", Toast.LENGTH_SHORT).show()
+                            finish()
                         }
                     }
                 }
-            } catch (_: Exception) {}
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    progressBar.visibility = ProgressBar.GONE
+                    Toast.makeText(this@ViewPartnerImageActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+            }
         }
     }
 }
+

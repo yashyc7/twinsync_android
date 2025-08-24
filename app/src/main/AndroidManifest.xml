@@ -73,13 +73,13 @@
 
         <activity
             android:name=".ui.ViewPartnerImageActivity"
-            android:exported="true"
+            android:label="Partner Image"
+            android:exported="false"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
         <activity
             android:name=".ui.UploadImageActivity"
-            android:exported="true"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+            android:theme="@style/Theme.AppCompat.Dialog"/>
 
 
 

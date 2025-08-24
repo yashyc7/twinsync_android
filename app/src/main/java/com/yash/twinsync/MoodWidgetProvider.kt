@@ -302,6 +302,19 @@ class MoodWidgetProvider : AppWidgetProvider() {
         )
         views.setOnClickPendingIntent(R.id.partner_image_click, imagePendingIntent)
 
+
+        // Upload Image button
+        val uploadIntent = Intent(context, UploadImageActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val uploadPendingIntent = PendingIntent.getActivity(
+            context,
+            widgetId + 2000,
+            uploadIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        views.setOnClickPendingIntent(R.id.upload_image_button, uploadPendingIntent)
+
         appWidgetManager.updateAppWidget(widgetId, views)
     }
 

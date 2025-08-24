@@ -76,6 +76,11 @@
             android:exported="true"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
+        <activity
+            android:name=".ui.UploadImageActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+
 
 
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -7,141 +8,142 @@
     android:gravity="center"
     android:background="#F8F9FA">
 
-    <LinearLayout
+    <!-- Card container -->
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="#FFFFFF"
-        android:padding="24dp"
-        android:elevation="4dp">
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        android:backgroundTint="#FFFFFF"
+        android:layout_margin="8dp"
+        android:padding="24dp">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Update Your Mood"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#333333"
-            android:gravity="center"
-            android:layout_marginBottom="24dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="How are you feeling right now?"
-            android:textSize="14sp"
-            android:textColor="#666666"
-            android:gravity="center"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Mood Input Field -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="16dp">
+            android:orientation="vertical">
 
+            <!-- Title -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Update Your Mood"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:gravity="center"
+                android:layout_marginBottom="16dp"
+                android:layout_marginTop="26dp"/>
+
+            <!-- Subtitle -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="How are you feeling right now?"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:gravity="center"
+                android:layout_marginBottom="16dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Your Mood"
+                android:layout_marginBottom="16dp"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxStrokeColor="@color/black"
+                app:hintEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edit_mood"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:inputType="textCapSentences"
+                    android:textColor="#333333"
+                    android:textSize="16sp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="16dp"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+
+            <!-- Quick Select Label -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Your Mood"
+                android:text="Quick Select"
                 android:textSize="12sp"
                 android:textColor="#666666"
-                android:layout_marginBottom="4dp" />
+                android:layout_marginBottom="8dp" />
 
-            <EditText
-                android:id="@+id/edit_mood"
+            <!-- Quick Select Buttons -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:hint="e.g. Happy, Tired, Excited..."
-                android:background="#F5F5F5"
-                android:padding="12dp"
-                android:textSize="16sp"
-                android:textColor="#333333"
-                android:textColorHint="#999999"
-                android:inputType="textCapSentences"
-                android:maxLines="1"
-                android:singleLine="true" />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginBottom="24dp"
+                android:paddingHorizontal="4dp"
+                android:weightSum="3">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_happy"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:layout_margin="4dp"
+                    android:text="😊 Happy" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_sad"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:layout_margin="4dp"
+                    android:text="😢 Sad" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_tired"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:layout_margin="4dp"
+                    android:text="😴 Tired" />
+            </LinearLayout>
+
+            <!-- Action Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="end"
+                android:paddingHorizontal="4dp"
+                android:layout_marginTop="8dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_cancel"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="Cancel"
+                    android:layout_marginEnd="8dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_save"
+                    style="@style/Widget.MaterialComponents.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:text="Update Mood"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginRight="16dp"/>
+            </LinearLayout>
         </LinearLayout>
-
-        <!-- Quick Mood Selection -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Quick Select"
-            android:textSize="12sp"
-            android:textColor="#666666"
-            android:layout_marginBottom="8dp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="24dp">
-
-            <Button
-                android:id="@+id/btn_happy"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:layout_marginEnd="4dp"
-                android:text="😊 Happy"
-                android:textSize="12sp"
-                android:background="#F0F0F0"
-                android:textColor="#FFFFFF" />
-
-            <Button
-                android:id="@+id/btn_sad"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:layout_marginStart="2dp"
-                android:layout_marginEnd="2dp"
-                android:text="😢 Sad"
-                android:textSize="12sp"
-                android:background="#F0F0F0"
-                android:textColor="#FFFFFF" />
-
-            <Button
-                android:id="@+id/btn_tired"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:text="😴 Tired"
-                android:textSize="12sp"
-                android:background="#F0F0F0"
-                android:textColor="#FFFFFF" />
-        </LinearLayout>
-
-        <!-- Action Buttons -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="end">
-
-            <Button
-                android:id="@+id/btn_cancel"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:text="Cancel"
-                android:textSize="14sp"
-                android:textColor="#FFFFFF"
-                android:background="#F0F0F0"
-                android:paddingHorizontal="16dp"
-                android:layout_marginEnd="8dp" />
-
-            <Button
-                android:id="@+id/btn_save"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:text="Update Mood"
-                android:textSize="14sp"
-                android:textColor="#FFFFFF"
-                android:background="#1976D2"
-                android:paddingHorizontal="24dp" />
-        </LinearLayout>
-    </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 </LinearLayout>

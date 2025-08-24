@@ -1,93 +1,136 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
         android:orientation="vertical"
+        android:gravity="center"
         android:padding="24dp">
 
-    <!-- App title -->
+        <!-- App title -->
+        <TextView
+            android:id="@+id/titleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/register"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="32dp" />
 
-    <!-- Name input -->
-    <TextView
-        android:id="@+id/titleText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:text="@string/register"
-        android:textSize="24sp"
-        android:textStyle="bold" />
+        <!-- Name input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/full_name"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            android:layout_marginBottom="16dp">
 
-    <EditText
-        android:id="@+id/nameInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/full_name"
-        android:inputType="textPersonName"
-        android:autofillHints="name"
-        android:minHeight="48dp"
-        android:layout_marginBottom="16dp" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/nameInput"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:inputType="textPersonName"
+                android:autofillHints="name"
+                android:padding="12dp"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Email input -->
-    <EditText
-        android:id="@+id/emailInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/email"
-        android:inputType="textEmailAddress"
-        android:autofillHints="emailAddress"
-        android:minHeight="48dp"
-        android:layout_marginBottom="16dp" />
+        <!-- Email input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/email"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            android:layout_marginBottom="16dp">
 
-    <!-- Password input -->
-    <EditText
-        android:id="@+id/passwordInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/password"
-        android:inputType="textPassword"
-        android:autofillHints="password"
-        android:minHeight="48dp"
-        android:layout_marginBottom="16dp" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/emailInput"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:inputType="textEmailAddress"
+                android:autofillHints="emailAddress"
+                android:padding="12dp"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Confirm Password input -->
+        <!-- Password input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/password"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            android:layout_marginBottom="16dp">
 
-    <!-- Register button -->
-    <EditText
-        android:id="@+id/confirmPasswordInput"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:autofillHints="password"
-        android:hint="@string/confirm_password"
-        android:inputType="textPassword"
-        android:minHeight="48dp" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/passwordInput"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:inputType="textPassword"
+                android:autofillHints="password"
+                android:padding="12dp"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
-        android:id="@+id/registerButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/register" />
+        <!-- Confirm Password input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/confirm_password"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp"
+            android:layout_marginBottom="24dp">
 
-    <!-- Already have an account -->
-    <Button
-        android:id="@+id/loginRedirectButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/already_have_account"
-        android:layout_marginTop="12dp" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/confirmPasswordInput"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:inputType="textPassword"
+                android:autofillHints="password"
+                android:padding="12dp"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Register button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/registerButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/register"
+            android:layout_marginBottom="12dp"
+            style="@style/Widget.MaterialComponents.Button"/>
+
+        <!-- Already have an account -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/loginRedirectButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/already_have_account"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
 
     </LinearLayout>
-    <!-- Loading circle (overlay) -->
+
+    <!-- Loading circle -->
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
 </FrameLayout>

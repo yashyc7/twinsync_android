@@ -35,6 +35,7 @@ import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import android.widget.Toast
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.datepicker.MaterialDatePicker
 import java.text.SimpleDateFormat
 import  java.util.*
@@ -55,6 +56,12 @@ class HomePageActivity : AppCompatActivity() {
     private lateinit var partnerBattery: TextView
     private lateinit var partnerGps: TextView
     private lateinit var partnerUpdatedAt: TextView
+
+
+    //daily updates and the pickup date button variables
+
+    private lateinit var pickupDateButton : MaterialButton
+    private lateinit var dailyUpdateArea: RecyclerView
 
     private lateinit var dailyUpdatesAdapter: DailyUpdatesAdapter
 
@@ -116,6 +123,8 @@ class HomePageActivity : AppCompatActivity() {
         partnerBattery = findViewById(R.id.partnerBattery)
         partnerGps = findViewById(R.id.partnerGps)
         partnerUpdatedAt = findViewById(R.id.partnerUpdatedAt)
+        pickupDateButton=findViewById(R.id.pickDateButton)
+        dailyUpdateArea=findViewById(R.id.dailyUpdatesRecyclerView)
     }
 
     private fun requestBatteryOptimizationException() {
@@ -362,6 +371,8 @@ class HomePageActivity : AppCompatActivity() {
         inviteSection.visibility = if (isPaired) View.GONE else View.VISIBLE
         partnerDataCard.visibility = if (isPaired) View.VISIBLE else View.GONE
         unlinkButton.visibility = if (isPaired) View.VISIBLE else View.GONE
+        pickupDateButton.visibility=if (isPaired) View.VISIBLE else View.GONE
+        dailyUpdateArea.visibility=if (isPaired) View.VISIBLE else View.GONE
     }
 
     private suspend fun makeApiCall(
